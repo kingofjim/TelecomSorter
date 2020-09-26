@@ -43,7 +43,7 @@ func Ranger(c *gin.Context) {
 		var result ranger
 		LOOP:
 			for i := 0; i < len(ranger_army); i++ {
-				//fmt.Printf("Index: %v\n", i)
+				fmt.Printf("Index: %v\n", i)
 				select {
 				case ranger := <-outChan:
 					//fmt.Println("finished:", ranger)
@@ -99,11 +99,7 @@ func buildArmy() []ranger {
 			ranger.ranger.Insert(cidranger.NewBasicRangerEntry(*network))
 		}
 		tempRanger = append(tempRanger, ranger)
-		//fmt.Println(ranger_army)
-		//fmt.Println(ranger_army[0].ranger.Contains(net.ParseIP("220.197.225.255")))
-		//os.Exit(0)
 	}
-	//fmt.Println(tempRanger)
 	return tempRanger
 }
 
