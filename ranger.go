@@ -43,7 +43,7 @@ func Ranger(c *gin.Context) {
 		var result ranger
 	LOOP:
 		for i := 0; i < len(ranger_army); i++ {
-			fmt.Printf("Index: %v\n", i)
+			//fmt.Printf("Index: %v\n", i)
 			select {
 			case ranger := <-outChan:
 				//fmt.Println("finished:", ranger)
