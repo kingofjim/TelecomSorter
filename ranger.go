@@ -34,26 +34,27 @@ func Ranger(c *gin.Context) {
 		//PrintMemUsage()
 		ctx, cancel := context.WithCancel(context.Background())
 		outChan := make(chan ranger)
+		foundChan := make(chan bool)
 		for _, ranger := range ranger_army {
-			go rangerSearch(ctx, outChan, ranger, net.ParseIP(ip))
+			go rangerSearch(ctx, outChan, foundChan, ranger, net.ParseIP(ip))
 		}
 		//cancel()
 		found := false
 		var result ranger
-		LOOP:
-			for i := 0; i < len(ranger_army); i++ {
-				fmt.Printf("Index: %v\n", i)
-				select {
-				case ranger := <-outChan:
-					//fmt.Println("finished:", ranger)
-					result = ranger
-					cancel()
-					<-ctx.Done()
-					found = true
-					break LOOP
-				default:
-				}
+	LOOP:
+		for i := 0; i < len(ranger_army); i++ {
+			fmt.Printf("Index: %v\n", i)
+			select {
+			case ranger := <-outChan:
+				//fmt.Println("finished:", ranger)
+				result = ranger
+				cancel()
+				<-ctx.Done()
+				found = true
+				break LOOP
+			case <-foundChan:
 			}
+		}
 		if !found {
 			fmt.Printf("%v - Not Found\n", ip)
 			c.JSON(200, gin.H{
@@ -102,13 +103,15 @@ func buildArmy() []ranger {
 	return tempRanger
 }
 
-func rangerSearch(ctx context.Context, outChan chan<- ranger, ranger ranger, ip net.IP) {
+func rangerSearch(ctx context.Context, outChan chan<- ranger, foundChan chan<- bool, ranger ranger, ip net.IP) {
 	if ip != nil {
 		check, err := ranger.ranger.Contains(ip)
 		//fmt.Printf("%v %v\n", ranger, check)
 		if checkErrPanic(err) {
 			if check {
 				outChan <- ranger
+			} else {
+				foundChan <- false
 			}
 		}
 	}
