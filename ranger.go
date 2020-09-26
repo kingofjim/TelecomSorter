@@ -34,35 +34,26 @@ func Ranger(c *gin.Context) {
 		//PrintMemUsage()
 		ctx, cancel := context.WithCancel(context.Background())
 		outChan := make(chan ranger)
-		//for _, ranger := range ranger_army {
-		fmt.Println(ranger_army[0])
-		go rangerSearch(ctx, outChan, ranger_army[0], net.ParseIP(ip))
-		//}
+		for _, ranger := range ranger_army {
+			go rangerSearch(ctx, outChan, ranger, net.ParseIP(ip))
+		}
 		//cancel()
 		found := false
 		var result ranger
-		select {
-		case ranger := <-outChan:
-			//fmt.Println("finished:", ranger)
-			result = ranger
-			cancel()
-			<-ctx.Done()
-			found = true
-		}
-		//LOOP:
-		//	for i := 0; i < len(ranger_army); i++ {
-		//		fmt.Printf("Index: %v\n", i)
-		//		select {
-		//		case ranger := <-outChan:
-		//			//fmt.Println("finished:", ranger)
-		//			result = ranger
-		//			cancel()
-		//			<-ctx.Done()
-		//			found = true
-		//			break LOOP
-		//		default:
-		//		}
-		//	}
+		LOOP:
+			for i := 0; i < len(ranger_army); i++ {
+				fmt.Printf("Index: %v\n", i)
+				select {
+				case ranger := <-outChan:
+					//fmt.Println("finished:", ranger)
+					result = ranger
+					cancel()
+					<-ctx.Done()
+					found = true
+					break LOOP
+				default:
+				}
+			}
 		if !found {
 			fmt.Printf("%v - Not Found\n", ip)
 			c.JSON(200, gin.H{
