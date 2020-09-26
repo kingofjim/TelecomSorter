@@ -33,7 +33,6 @@ func Ranger(c *gin.Context) {
 	} else {
 		//PrintMemUsage()
 		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
 		outChan := make(chan ranger)
 		for _, ranger := range ranger_army {
 			go rangerSearch(ctx, outChan, ranger, net.ParseIP(ip))
